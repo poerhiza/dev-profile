@@ -1,0 +1,8 @@
+svg.wordcloud {
+  background-color: #eaeaea;
+}
+
+text.wordcloudItem {
+  font-weight:lighter;
+  cursor: pointer;
+}

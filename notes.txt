@@ -1,0 +1,40 @@
+Questions to answer:
+
+  What languages used in projects?
+    - use cloc to get
+    - use bash/sed/awk to get by file extension (git ls-files?)
+
+  Percent of contribution for project?
+    - use git ls-files and git blame to iterate each file and return authorship counts
+    - gitstats, gitinspector
+
+The how:
+
+ Get authors for repo
+
+  Just authors
+    git log --pretty=format:"%an%x09" | sort | uniq
+
+  Authors and number of commits
+    git shortlog --summary --numbered
+
+ For a file, get the current number of lines per author.
+
+    git blame --line-porcelain src/utils.js  |            sed -n 's/^author //p' |            sort | uniq -c | sort -rn
+
+ Get days of work on project for an author:
+
+    git log --author=`git config user.email` | grep "^Date" | awk '{print $2 " "  $3 " " $4}' | uniq | wc -l
+
+
+https://gist.github.com/eyecatchup/3fb7ef0c0cbdb72412fc
+  
+
+ Count of total commits:
+    git rev-list --count HEAD
+
+ First commit for Author:
+    git log --pretty=format:"%ci" --reverse --author "Poe Rhiza" | head -n 1
+
+ Last commit for Author
+    git log --pretty=format:"%ci" --author "Poe Rhiza" | head -n 1
