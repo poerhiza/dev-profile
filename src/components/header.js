@@ -1,12 +1,19 @@
 import m from 'mithril';
 
-import styles from '../css/header.css';
+//TODO: https://getmdl.io/components/index.html#layout-section
+// update with transparent header menu item, on click have options for WC config.
 
 import wordcloud from './wordcloud';
 
 const header = {
   view: () => {
-    return m('div.header', [m(wordcloud)]);
+    return m('header',
+      {
+        class: 'mdl-layout__header portfolio-header',
+        style: 'display: block',
+      },
+      m(wordcloud)
+    );
   },
 };
 

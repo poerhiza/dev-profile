@@ -1,8 +1,9 @@
 svg.wordcloud {
-  background-color: #eaeaea;
+  background-color: transparent;
 }
 
 text.wordcloudItem {
+  fill: #fff;
   font-weight:lighter;
   cursor: pointer;
 }

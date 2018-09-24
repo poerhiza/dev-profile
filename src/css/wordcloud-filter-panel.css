@@ -1,0 +1,7 @@
+div.WordcloudFilterPanel {
+  background-color: transparent;
+  float: right;
+  position: fixed;
+  top: 0;
+  right: 0;
+}

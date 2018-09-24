@@ -7,5 +7,6 @@ m.route(
   '/',
   {
     '/': layout,
+    '/language/:language': layout,
   }
 );

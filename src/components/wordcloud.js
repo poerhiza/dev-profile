@@ -1,29 +1,49 @@
 import m from 'mithril';
 
 import styles from '../css/wordcloud.css';
+import wordcloudState from '../models/wordcloud-state';
+import WordcloudFilterPanel from './wordcloud-filter-panel';
 
-var d3 = require('d3');
-var cloud = require('d3-cloud');
+const _ = require('lodash');
+const d3 = require('d3');
+const cloud = require('d3-cloud');
+
+const languages = require('../data/languages.json');
+
+let scaleSize = d3.scaleLog()
+  .range([1, 50])
+  .domain([languages.total.lineDomain.min, languages.total.lineDomain.max]);
+
+const getSize = (wp=1, hp=1) => {
+  const w = window,
+    e = document.documentElement,
+    g = document.documentElement.getElementsByTagName('body')[0],
+    width = w.innerWidth || e.clientWidth || g.clientWidth,
+    height = w.innerHeight|| e.clientHeight|| g.clientHeight;
+  return {width: wp*width, height: hp*height};
+};
 
 const wordcloud = {
   oninit: function() {
+    let cloudSize = getSize(1, .3);
+
     this.layout = cloud()
-      .size([500, 500])
-      .words([
-        'Hello', 'world', 'normally', 'you', 'want', 'more', 'words',
-        'than', 'this'].map(function(d) {
-        return {text: d, size: 10 + Math.random() * 90, test: 'haha'};
-      }))
+      .size([cloudSize.width, cloudSize.height])
+      .words(
+        _.map(languages.total, (languageItem, language) => {
+          return {text: language, size: scaleSize(languageItem.lines)};
+        })
+      )
       .padding(5)
-      .rotate(function() { return 0;})
       .font('Impact')
-      .fontSize(function(d) { return d.size; })
+      .rotate(0)
+      .fontSize((d) => { return d.size; })
       .on('end', (words) => {
         d3.select('svg.wordcloud')
-          .attr('width', this.layout.size()[0])
-          .attr('height', this.layout.size()[1])
+          .attr('width', cloudSize.width)
+          .attr('height', cloudSize.height)
           .append('g')
-          .attr('transform', 'translate(' + this.layout.size()[0] / 2 + ',' + this.layout.size()[1] / 2 + ')')
+          .attr('transform', 'translate(' + cloudSize.width / 2 + ',' + cloudSize.height / 2 + ')')
           .selectAll('text')
           .data(words)
           .enter().append('text')
@@ -36,23 +56,26 @@ const wordcloud = {
           })
           .text(function(d) { return d.text; })
           .on('mouseover', function() {
+            this.oldColor = this.style.fill;
             this.style.fill = 'orange';
           })
           .on('mouseout', function() {
-            this.style.fill = 'black';
+            this.style.fill = this.oldColor;
           })
           .on('click', (item) => {
-            console.log(item);
+            location.hash = location.hash.replace(/language\/.*/, `language/${item.text}`);
+
+            if (location.hash.indexOf('language') === -1) {
+              location.hash = `#!/language/${item.text}`;
+            }
           });
       });
-
-
   },
   oncreate: function() {
     this.layout.start();
   },
   view: function() {
-    return m('svg.wordcloud');
+    return [m('svg.wordcloud'), m(WordcloudFilterPanel)];
   },
 };
 

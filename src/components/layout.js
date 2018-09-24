@@ -1,5 +1,8 @@
 import m from 'mithril';
 
+import 'material-design-lite';
+import 'material-design-lite/dist/material.min.css';
+
 import styles from '../css/layout.css';
 
 import header from './header';
@@ -8,7 +11,15 @@ import footer from './footer';
 
 const layout = {
   view: (vnode) => {
-    return [m(header), m(main), m(footer)];
+    return m('div', {
+      class: 'mdl-layout mdl-js-layout mdl-layout--fixed-header',
+    },
+    [
+      m(header),
+      m(main, vnode.attrs),
+      m(footer),
+    ]
+    );
   },
 };
 

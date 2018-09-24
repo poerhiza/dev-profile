@@ -1,10 +1,37 @@
 import m from 'mithril';
 
-import styles from '../css/footer.css';
+import pkg from '../../package.json';
 
 const footer = {
   view: () => {
-    return m('div.footer');
+    return m('footer',
+      {
+        class: 'mdl-mini-footer',
+      },
+      [
+        m('div',
+          {
+            class: 'mdl-mini-footer__left-section',
+          },
+          `${pkg.name} Portfolio v${pkg.version} - ${pkg.description}`
+        ),
+        m('div',
+          {
+            class: 'mdl-mini-footer__right-section',
+          },
+          m('ul',
+            {
+              class: 'mdl-mini-footer__link-list',
+            },
+            [
+              m('li',
+                m('a', {href: '/'}, 'About')
+              ),
+            ]
+          )
+        ),
+      ]
+    );
   },
 };
 
