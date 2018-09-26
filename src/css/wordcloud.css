@@ -3,7 +3,7 @@ svg.wordcloud {
 }
 
 text.wordcloudItem {
-  fill: #fff;
+  fill: rgb(63, 81, 181);
   font-weight:lighter;
   cursor: pointer;
 }

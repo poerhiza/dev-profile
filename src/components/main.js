@@ -4,7 +4,6 @@ import wordcloudState from '../models/wordcloud-state';
 
 const main = {
   view: (vnode) => {
-
     wordcloudState.selectedLanguage = (vnode.attrs.language) ? vnode.attrs.language : false;
 
     let projects = m('h3', {}, 'Click on a project in the header to get a listing of projects that utilize that language!');
@@ -12,7 +11,7 @@ const main = {
     if (wordcloudState.selectedLanguage) {
       projects = [];
 
-      _.forEach(wordcloudState.getProjectsFromLanguage(wordcloudState.selectedLanguage), (project) => {
+      _.forEach(wordcloudState.getProjectsFromLanguage(atob(wordcloudState.selectedLanguage)), (project) => {
         projects.push(
           m('div.project', {
             class: 'mdl-cell mdl-card mdl-shadow--4dp portfolio-card',

@@ -8,11 +8,9 @@ const _ = require('lodash');
 const d3 = require('d3');
 const cloud = require('d3-cloud');
 
-const languages = require('../data/languages.json');
-
 let scaleSize = d3.scaleLog()
-  .range([1, 50])
-  .domain([languages.total.lineDomain.min, languages.total.lineDomain.max]);
+  .range([16, 48])
+  .domain(wordcloudState.getTotalDomain());
 
 const getSize = (wp=1, hp=1) => {
   const w = window,
@@ -23,59 +21,73 @@ const getSize = (wp=1, hp=1) => {
   return {width: wp*width, height: hp*height};
 };
 
-const wordcloud = {
-  oninit: function() {
-    let cloudSize = getSize(1, .3);
-
-    this.layout = cloud()
-      .size([cloudSize.width, cloudSize.height])
-      .words(
-        _.map(languages.total, (languageItem, language) => {
-          return {text: language, size: scaleSize(languageItem.lines)};
+let getCloud = () => {
+  let cloudSize = getSize(1, .3);
+  return cloud()
+    .size([cloudSize.width, cloudSize.height])
+    .words(
+      wordcloudState.getLanguageTotals(scaleSize)
+    )
+    .padding(5)
+    .font('Impact')
+    .rotate(0)
+    .fontSize((d) => { return d.size; })
+    .on('end', (words) => {
+      let countContainer = document.querySelector('#countContainer');
+      d3.select('svg.wordcloud')
+        .attr('width', cloudSize.width)
+        .attr('height', cloudSize.height)
+        .append('g')
+        .attr('transform', 'translate(' + cloudSize.width / 2 + ',' + cloudSize.height / 2 + ')')
+        .selectAll('text')
+        .data(words)
+        .enter().append('text')
+        .attr('class', 'wordcloudItem')
+        .style('font-size', function(d) { return d.size + 'px'; })
+        .style('font-family', 'Impact')
+        .attr('text-anchor', 'middle')
+        .attr('transform', function(d) {
+          return 'translate(' + [d.x, d.y] + ')rotate(' + d.rotate + ')';
         })
-      )
-      .padding(5)
-      .font('Impact')
-      .rotate(0)
-      .fontSize((d) => { return d.size; })
-      .on('end', (words) => {
-        d3.select('svg.wordcloud')
-          .attr('width', cloudSize.width)
-          .attr('height', cloudSize.height)
-          .append('g')
-          .attr('transform', 'translate(' + cloudSize.width / 2 + ',' + cloudSize.height / 2 + ')')
-          .selectAll('text')
-          .data(words)
-          .enter().append('text')
-          .attr('class', 'wordcloudItem')
-          .style('font-size', function(d) { return d.size + 'px'; })
-          .style('font-family', 'Impact')
-          .attr('text-anchor', 'middle')
-          .attr('transform', function(d) {
-            return 'translate(' + [d.x, d.y] + ')rotate(' + d.rotate + ')';
-          })
-          .text(function(d) { return d.text; })
-          .on('mouseover', function() {
-            this.oldColor = this.style.fill;
-            this.style.fill = 'orange';
-          })
-          .on('mouseout', function() {
-            this.style.fill = this.oldColor;
-          })
-          .on('click', (item) => {
-            location.hash = location.hash.replace(/language\/.*/, `language/${item.text}`);
+        .text(function(d) { return d.text; })
+        .on('mouseover', function(evt) {
+          this.oldColor = this.style.fill;
+          this.style.fill = 'orange';
+          countContainer.innerHTML = wordcloudState.getCountContainerText(this.innerHTML);
+        })
+        .on('mouseout', function() {
+          this.style.fill = this.oldColor;
+          countContainer.innerHTML = '';
+        })
+        .on('click', (item) => {
+          location.hash = location.hash.replace(/language\/.*/, `language/${btoa(item.text)}`);
 
-            if (location.hash.indexOf('language') === -1) {
-              location.hash = `#!/language/${item.text}`;
-            }
-          });
-      });
+          if (location.hash.indexOf('language') === -1) {
+            location.hash = `#!/language/${btoa(item.text)}`;
+          }
+        });
+    });
+};
+
+const wordcloud = {
+  onupdate: function(vnode) {
+
+    if (vnode){//wordcloud plugin doesn't have a remove/clear method...
+      while (vnode.dom.hasChildNodes()) {
+        vnode.dom.removeChild(vnode.dom.lastChild);
+      }
+    }
+
+    this.layout = getCloud().start();
+  },
+  oninit: function() {
+    this.layout = getCloud();
   },
   oncreate: function() {
     this.layout.start();
   },
   view: function() {
-    return [m('svg.wordcloud'), m(WordcloudFilterPanel)];
+    return [m('svg.wordcloud'), m('hr', {style: 'margin:0px;padding:0px;'})];
   },
 };
 

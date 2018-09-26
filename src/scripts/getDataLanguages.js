@@ -37,13 +37,15 @@ program
         'bin',
         'data',
         'node_modules',
+        '.idea',
+        'build',
       ];
       const excludeFile = `--exclude-list-file=${__dirname.replace('scripts', 'data')}/clocExclusions.txt`;
-      const cmd = `/usr/bin/cloc ${excludeFile} --fullpath --not-match-d='(${excludeBase.join('|')})' cloc --json ./`;
+      const cmd = `/usr/bin/cloc ${excludeFile} --fullpath --not-match-d='(${excludeBase.join('|')})' --json ./`;
 
       let codeStat = false;
 
-      console.debug(`Executing: ${cmd}`);
+      console.debug(`Executing: ${cmd} in ${dir}`);
 
       try{
         codeStat = execSync(cmd, {cwd: dir});
@@ -73,6 +75,8 @@ program
               language.indexOf('SUM') === -1 &&
               language.indexOf('header') === -1
             ) {
+              language = language;
+
               languages[project][language] = {
                 files: languageStat.nFiles,
                 lines: languageStat.code,
