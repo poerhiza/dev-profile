@@ -19,7 +19,22 @@ const main = {
             m('div', {class: 'mdl-card__title'},
               m('h2', {class: 'mdl-card__title-text'}, `${project}`)
             ),
-            m('div', {class: 'mdl-card__supporting-text'}, 'Enim labore aliqua consequat ut quis ad occaecat aliquip incididunt. Sunt nulla eu enim irure enim nostrud aliqua consectetur ad consectetur sunt ullamco officia. Ex officia laborum et consequat duis.'),
+            m('div', {class: 'mdl-card__supporting-text', style:'margin-top:0px;padding-top:0px;'}, [
+              m('div', {class: 'mdl-grid'}, [
+                m('div', {class: 'mdl-cell mdl-cell--12-col'}, _.map(wordcloudState.getLanguagesForProject(project), (item, index) => {
+                  return m('div', {class: 'mdl-grid mdl-grid--no-spacing', style: 'flex: 1'}, [
+                    m('div', {class: 'mdl-cell mdl-cell--4-col', style: 'text-align:right'}, item.text),
+                    m('div', {class: 'mdl-cell mdl-cell--8-col'}, [
+                      m('div', {class: 'mdl-progress', style: 'height:15px;margin:4px;width: 100%;'}, [
+                        m('div', {class: 'progressbar bar', style: `width: ${item.percent}`}),
+                        m('div', {class: 'bufferbar bar', style: 'width: 100%;'}),
+                      ]),
+                    ]),
+                  ]);
+                })),
+                m('div', {class: 'mdl-cell mdl-cell--12-col'}, 'first scellaosdl askfdj lkafj wl  ljifi ldflj ladg'),
+              ]),
+            ]),
             m('div', {class: 'mdl-card__actions mdl-card--border'}, [
               m('div', {class: 'mdl-button mdl-button--colored mdl-js-button mdl-js-ripple-effect mdl-button--accent', href:''}, 'Read more'),
             ]),

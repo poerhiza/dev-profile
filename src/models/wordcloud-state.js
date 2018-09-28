@@ -16,6 +16,29 @@ let wordcloudState = {
   getTotalDomain: () => {
     return [languages.total[`${wordcloudState.domainBy}Domain`].min, languages.total[`${wordcloudState.domainBy}Domain`].max];
   },
+  getLanguagesForProject: (project) => {
+    let ret = [];
+    var total = 0;
+
+    _.forEach(languages[project], function(counts, language) {
+
+      if (language.indexOf('Domain') === -1) {
+        total += counts[`${wordcloudState.domainBy}s`];
+      }
+    });
+
+    _.forEach(languages[project], (junk, language) => {
+
+      if (language.indexOf('Domain') === -1) {
+        let value = Number(junk[`${wordcloudState.domainBy}s`]/ total * 100).toFixed(0);
+        ret.push({
+          'text': language,
+          'percent': `${(value > 1) ? value : 1}%`,
+        });
+      }
+    });
+    return ret;
+  },
   getProjectsFromLanguage: (language) => {
     return languageToProjects[language];
   },
