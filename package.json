@@ -7,7 +7,7 @@
     "test": "echo \"Error: no test specified\" && exit 1",
     "build": "webpack",
     "start": "webpack-dev-server",
-    "lang": "node ./src/scripts/getDataLanguages.js stat"
+    "lang": "node ./src/scripts/getData.js stat"
   },
   "author": "",
   "license": "ISC",

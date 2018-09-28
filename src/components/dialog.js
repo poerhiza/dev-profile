@@ -8,7 +8,7 @@ const dialog = {
   view: (vnode) => {
     return [
       m('button', {class: 'mdl-button mdl-button--raised mdl-js-button dialog-button', onclick: function(evt) {
-        console.log('you clicked me', this, evt);
+
         let dialog = evt.target.parentElement.lastChild;
 
         if (!dialog.showModal) {

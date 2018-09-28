@@ -55,30 +55,21 @@ program
       }
 
       if (codeStat) {
-        try{
+        let project = `${dir.replace(path.dirname(dir), '').replace(/\//, '')}`;
+
+        try {
           let codeStatJSON = JSON.parse(codeStat.toString().replace(/\n/, ''));
-          let project = `${dir.replace(path.dirname(dir), '').replace(/\//, '')}`;
-          let skilzInfo = false;
-
-          try{
-            skilzInfo = execSync('cat ./.skilz', {cwd: dir});
-            skilzInfo = JSON.parse(skilzInfo.toString().replace(/\n/, ''));
-          } catch (e) {
-            console.error(`no skilzInfo found for ${dir}`);
-          }
-
-          if (skilzInfo) {
-            projectInfo[project] = skilzInfo;
-          }
 
           languages[project] = {
             lineDomain: {
               min: 9999,
               max: 1,
+              total: 0,
             },
             fileDomain: {
               min: 9999,
               max: 1,
+              total: 0,
             },
           };
 
@@ -109,16 +100,22 @@ program
               if (languages[project].lineDomain.min > languages[project][language].lines) {
                 languages[project].lineDomain.min = languages[project][language].lines;
               }
+
               if (languages[project].lineDomain.max < languages[project][language].lines) {
                 languages[project].lineDomain.max = languages[project][language].lines;
               }
 
+              languages[project].lineDomain.total += languages[project][language].lines;
+
               if (languages[project].fileDomain.min > languages[project][language].files) {
                 languages[project].fileDomain.min = languages[project][language].files;
               }
+
               if (languages[project].fileDomain.max < languages[project][language].files) {
                 languages[project].fileDomain.max = languages[project][language].files;
               }
+
+              languages[project].fileDomain.total += languages[project][language].files;
 
               // languages totals domain
               if (languages.total.lineDomain.min > languages['total'][language].lines) {
@@ -139,6 +136,70 @@ program
         } catch (e) {
           console.error(e);
           console.error(`Unable to read cloc output for ${dir}`);
+        }
+
+
+        let skilzInfo = false;
+
+        try {
+          skilzInfo = execSync('cat ./.skilz', {cwd: dir});
+          skilzInfo = JSON.parse(skilzInfo.toString().replace(/\n/, ''));
+        } catch (e) {
+          console.error(`no skilzInfo found for ${dir}`);
+        }
+
+        try {
+          let authors = execSync('git shortlog -sn master', {cwd: dir}).toString().split('\n');
+          authors = _.filter(_.map(authors, (author) => {
+            return author.replace(/.*\t/, '');
+          }), (author) => !_.isEmpty(author));
+
+          if (!skilzInfo) {
+            skilzInfo = {
+              gitstats: {},
+            };
+          } else {
+            skilzInfo.gitstats = {};
+          }
+          skilzInfo.authors = authors;
+
+          _.forEach(authors, (author) => {
+
+            if (_.isUndefined(skilzInfo.gitstats[author])) {
+              skilzInfo.gitstats[author] = {
+                linesInCode: 0,
+              };
+            }
+            skilzInfo.gitstats['total'] = {
+              commitCount: Number(execSync('git rev-list --count HEAD', {cwd: dir}).toString()),
+              firstCommitDate: execSync('git log --pretty=format:"%ci" --reverse | head -n 1', {cwd: dir}).toString().replace(/\n/, ''),
+              lastCommitDate: execSync('git log --pretty=format:"%ci" | head -n 1', {cwd: dir}).toString().replace(/\n/, ''),
+              daysOfWork: Number(execSync('git log | grep "^Date" | awk \'{print $2 " "  $3 " " $4}\' | uniq | wc -l', {cwd: dir}).toString().replace(/\n/, '')),
+              lineCount: languages[project].lineDomain.total,
+              fileCount: languages[project].fileDomain.total,
+            };
+
+            let numstat = execSync(`git log --author="${author}" --pretty=tformat: --numstat | gawk '{ add += $1; subs += $2; loc += $1 - $2 } END { printf "%s,%s,%s", add, subs, loc }'`, {cwd: dir}).toString().split(',');
+
+            skilzInfo.gitstats[author] = {
+              firstCommitDate: execSync(`git log --pretty=format:"%ci" --reverse --author "${author}" | head -n 1`, {cwd: dir}).toString().replace(/\n/, ''),
+              lastCommitDate: execSync(`git log --pretty=format:"%ci" --author "${author}" | head -n 1`, {cwd: dir}).toString().replace(/\n/, ''),
+              daysOfWork: Number(execSync(`git log --author="${author}" | grep "^Date" | awk '{print $2 " "  $3 " " $4}' | uniq | wc -l`, {cwd: dir}).toString().replace(/\n/, '')),
+              commitCount: Number(execSync(`git rev-list --count HEAD --author "${author}"`).toString().replace(/\n/, '').replace(/\s+/, '')),
+              numstat: {
+                added: Number(numstat[0]),
+                removed: Number(numstat[1]),
+                total: Number(numstat[2]),
+              },
+            };
+          });
+
+        } catch (e) {
+          console.error('unable to get git stats...', e.stack);
+        }
+
+        if (skilzInfo) {
+          projectInfo[project] = skilzInfo;
         }
       }
     });
