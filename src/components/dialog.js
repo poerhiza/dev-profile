@@ -7,7 +7,7 @@ import '../css/dialog.css';
 const dialog = {
   view: (vnode) => {
     return [
-      m('button', {class: 'mdl-button mdl-button--raised mdl-js-button dialog-button', onclick: function(evt) {
+      m('button', {class: 'mdl-button mdl-button--colored mdl-js-button mdl-js-ripple-effect mdl-button--accent', onclick: function(evt) {
 
         let dialog = evt.target.parentElement.lastChild;
 

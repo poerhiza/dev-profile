@@ -50,8 +50,9 @@ const main = {
             m('div', {class: 'mdl-card__title'},
               m('h2', {class: 'mdl-card__title-text'}, `${projectTitle}`)
             ),
-            m('div', {class: 'mdl-card__supporting-text', style:'margin-top:0px;padding-top:0px;'}, [
+            m('div', {class: 'mdl-card__supporting-text', style:'height:100%;margin-top:0px;padding-top:0px;'}, [
               m('div', {class: 'mdl-grid'}, [
+                m('div', {class: 'mdl-cell mdl-cell--12-col'}, projectDescription),
                 m('div', {class: 'mdl-cell mdl-cell--12-col'}, _.map(wordcloudState.getLanguagesForProject(project), (item, index) => {
                   return m('div', {class: 'mdl-grid mdl-grid--no-spacing', style: 'flex: 1'}, [
                     m('div', {class: 'mdl-cell mdl-cell--4-col', style: 'text-align:right'}, item.text),
@@ -63,7 +64,6 @@ const main = {
                     ]),
                   ]);
                 })),
-                m('div', {class: 'mdl-cell mdl-cell--12-col'}, projectDescription),
               ]),
             ]),
             m(
