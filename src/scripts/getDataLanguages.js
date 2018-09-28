@@ -30,6 +30,7 @@ program
       },
     };
     let projects = {};
+    let projectInfo = {};
 
     dirs.forEach(function (dir) {
       const excludeBase = [
@@ -57,6 +58,18 @@ program
         try{
           let codeStatJSON = JSON.parse(codeStat.toString().replace(/\n/, ''));
           let project = `${dir.replace(path.dirname(dir), '').replace(/\//, '')}`;
+          let skilzInfo = false;
+
+          try{
+            skilzInfo = execSync('cat ./.skilz', {cwd: dir});
+            skilzInfo = JSON.parse(skilzInfo.toString().replace(/\n/, ''));
+          } catch (e) {
+            console.error(`no skilzInfo found for ${dir}`);
+          }
+
+          if (skilzInfo) {
+            projectInfo[project] = skilzInfo;
+          }
 
           languages[project] = {
             lineDomain: {
@@ -141,6 +154,13 @@ program
       fs.writeFileSync(
         './src/data/languages-to-projects.json',
         JSON.stringify(projects),
+        {
+          encoding: 'utf8',
+        }
+      );
+      fs.writeFileSync(
+        './src/data/projectInfo.json',
+        JSON.stringify(projectInfo),
         {
           encoding: 'utf8',
         }

@@ -7,6 +7,7 @@ const footer = {
     return m('footer',
       {
         class: 'mdl-mini-footer',
+        style: 'padding: 10px 5px;',
       },
       [
         m('div',
@@ -25,7 +26,7 @@ const footer = {
             },
             [
               m('li',
-                m('a', {href: '/'}, 'About')
+                m('a', {href: 'https://github.com/poerhiza/skilz/blob/master/README.md', target: '_blank'}, 'About')
               ),
             ]
           )

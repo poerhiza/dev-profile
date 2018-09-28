@@ -1,5 +1,6 @@
 const languageToProjects = require('../data/languages-to-projects.json');
 const languages = require('../data/languages.json');
+const projectInfo = require('../data/projectInfo.json');
 
 let wordcloudState = {
   selectedLanguage: false,
@@ -38,6 +39,9 @@ let wordcloudState = {
       }
     });
     return ret;
+  },
+  getProjectInfoForProject: (project) => {
+    return (projectInfo[project]) ? projectInfo[project] : false;
   },
   getProjectsFromLanguage: (language) => {
     return languageToProjects[language];

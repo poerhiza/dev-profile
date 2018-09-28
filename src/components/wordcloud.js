@@ -2,7 +2,6 @@ import m from 'mithril';
 
 import styles from '../css/wordcloud.css';
 import wordcloudState from '../models/wordcloud-state';
-import WordcloudFilterPanel from './wordcloud-filter-panel';
 
 const _ = require('lodash');
 const d3 = require('d3');
@@ -21,8 +20,9 @@ const getSize = (wp=1, hp=1) => {
   return {width: wp*width, height: hp*height};
 };
 
+const cloudSize = getSize(1, .15);
+
 let getCloud = () => {
-  let cloudSize = getSize(1, .3);
   return cloud()
     .size([cloudSize.width, cloudSize.height])
     .words(
@@ -87,7 +87,7 @@ const wordcloud = {
     this.layout.start();
   },
   view: function() {
-    return [m('svg.wordcloud'), m('hr', {style: 'margin:0px;padding:0px;'})];
+    return [m('svg.wordcloud', {style: `min-height: ${cloudSize.height}px;`}), m('hr', {style: 'margin:0px;padding:0px;'})];
   },
 };
 
