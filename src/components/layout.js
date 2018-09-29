@@ -3,8 +3,6 @@ import m from 'mithril';
 import 'material-design-lite';
 
 import theme from '../css/material.min.css';
-import icon from 'font-awesome/css/font-awesome.min.css';
-
 import styles from '../css/layout.css';
 
 import header from './header';
