@@ -64,12 +64,10 @@ program
             lineDomain: {
               min: 9999,
               max: 1,
-              total: 0,
             },
             fileDomain: {
               min: 9999,
               max: 1,
-              total: 0,
             },
           };
 
@@ -105,8 +103,6 @@ program
                 languages[project].lineDomain.max = languages[project][language].lines;
               }
 
-              languages[project].lineDomain.total += languages[project][language].lines;
-
               if (languages[project].fileDomain.min > languages[project][language].files) {
                 languages[project].fileDomain.min = languages[project][language].files;
               }
@@ -114,8 +110,6 @@ program
               if (languages[project].fileDomain.max < languages[project][language].files) {
                 languages[project].fileDomain.max = languages[project][language].files;
               }
-
-              languages[project].fileDomain.total += languages[project][language].files;
 
               // languages totals domain
               if (languages.total.lineDomain.min > languages['total'][language].lines) {
@@ -138,7 +132,6 @@ program
           console.error(`Unable to read cloc output for ${dir}`);
         }
 
-
         let skilzInfo = false;
 
         try {
@@ -150,6 +143,7 @@ program
 
         try {
           let authors = execSync('git shortlog -sn master', {cwd: dir}).toString().split('\n');
+
           authors = _.filter(_.map(authors, (author) => {
             return author.replace(/.*\t/, '');
           }), (author) => !_.isEmpty(author));
@@ -163,6 +157,15 @@ program
           }
           skilzInfo.authors = authors;
 
+          skilzInfo.gitstats['total'] = {
+            commitCount: 0,
+            firstCommitDate: execSync('git log --pretty=format:"%ci" --reverse | head -n 1', {cwd: dir}).toString().replace(/\n/, ''),
+            lastCommitDate: execSync('git log --pretty=format:"%ci" | head -n 1', {cwd: dir}).toString().replace(/\n/, ''),
+            daysOfWork: 0,
+            lineCount: 0,
+            fileCount: 0,
+          };
+
           _.forEach(authors, (author) => {
 
             if (_.isUndefined(skilzInfo.gitstats[author])) {
@@ -170,28 +173,31 @@ program
                 linesInCode: 0,
               };
             }
-            skilzInfo.gitstats['total'] = {
-              commitCount: Number(execSync('git rev-list --count HEAD', {cwd: dir}).toString()),
-              firstCommitDate: execSync('git log --pretty=format:"%ci" --reverse | head -n 1', {cwd: dir}).toString().replace(/\n/, ''),
-              lastCommitDate: execSync('git log --pretty=format:"%ci" | head -n 1', {cwd: dir}).toString().replace(/\n/, ''),
-              daysOfWork: Number(execSync('git log | grep "^Date" | awk \'{print $2 " "  $3 " " $4}\' | uniq | wc -l', {cwd: dir}).toString().replace(/\n/, '')),
-              lineCount: languages[project].lineDomain.total,
-              fileCount: languages[project].fileDomain.total,
-            };
 
             let numstat = execSync(`git log --author="${author}" --pretty=tformat: --numstat | gawk '{ add += $1; subs += $2; loc += $1 - $2 } END { printf "%s,%s,%s", add, subs, loc }'`, {cwd: dir}).toString().split(',');
+            let deletedFileCount = Number(execSync(`git log --author="${author}" --pretty=tformat: --numstat --follow -p ./ | grep "deleted file" | wc -l`, {cwd: dir}).toString());
+            let createdFileCount = Number(execSync(`git log --author="${author}" --pretty=tformat: --follow -p ./ | grep 'new file mode' | wc -l`, {cwd: dir}).toString());
 
             skilzInfo.gitstats[author] = {
               firstCommitDate: execSync(`git log --pretty=format:"%ci" --reverse --author "${author}" | head -n 1`, {cwd: dir}).toString().replace(/\n/, ''),
               lastCommitDate: execSync(`git log --pretty=format:"%ci" --author "${author}" | head -n 1`, {cwd: dir}).toString().replace(/\n/, ''),
               daysOfWork: Number(execSync(`git log --author="${author}" | grep "^Date" | awk '{print $2 " "  $3 " " $4}' | uniq | wc -l`, {cwd: dir}).toString().replace(/\n/, '')),
-              commitCount: Number(execSync(`git rev-list --count HEAD --author "${author}"`).toString().replace(/\n/, '').replace(/\s+/, '')),
-              numstat: {
+              commitCount: Number(execSync(`git rev-list --count master --author "${author}"`, {cwd: dir}).toString().replace(/\n/, '').replace(/\s+/, '')),
+              numstatFile: {
+                added: createdFileCount,
+                removed: deletedFileCount,
+                total: createdFileCount - deletedFileCount,
+              },
+              numstatLine: {
                 added: Number(numstat[0]),
                 removed: Number(numstat[1]),
                 total: Number(numstat[2]),
               },
             };
+            skilzInfo.gitstats['total'].commitCount += skilzInfo.gitstats[author].commitCount;
+            skilzInfo.gitstats['total'].daysOfWork += skilzInfo.gitstats[author].daysOfWork;
+            skilzInfo.gitstats['total'].lineCount += skilzInfo.gitstats[author].numstatFile.total;
+            skilzInfo.gitstats['total'].fileCount += skilzInfo.gitstats[author].numstatLine.total;
           });
 
         } catch (e) {

@@ -41,7 +41,7 @@ const main = {
           );
         });
 
-        links.push(m(dialog, {title: 'test', bt: 'Git Stats'}));
+        links.push(m(dialog, {title: 'Git Stats', bt: 'Git Stats', data: projectInfo.gitstats}));
 
         projects.push(
           m('div.project', {
