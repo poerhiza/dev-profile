@@ -15,7 +15,9 @@ let wordcloudState = {
     });
   },
   getTotalDomain: () => {
-    return [languages.total[`${wordcloudState.domainBy}Domain`].min, languages.total[`${wordcloudState.domainBy}Domain`].max];
+    let min = (languages.total[`${wordcloudState.domainBy}Domain`].min > 0) ? languages.total[`${wordcloudState.domainBy}Domain`].min : 1;
+    let max = (languages.total[`${wordcloudState.domainBy}Domain`].max > 0) ? languages.total[`${wordcloudState.domainBy}Domain`].max : min + 1;
+    return [min, max];
   },
   getLanguagesForProject: (project) => {
     let ret = [];

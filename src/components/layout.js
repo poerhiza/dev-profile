@@ -13,7 +13,7 @@ import footer from './footer';
 const layout = {
   view: (vnode) => {
     return m('div', {
-      class: 'mdl-layout mdl-js-layout mdl-layout--fixed-header',
+      class: 'mdl-layout mdl-js-layout mdl-layout--fixed-header site',
     },
     [
       m(header),

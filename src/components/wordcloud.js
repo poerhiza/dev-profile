@@ -8,7 +8,7 @@ const d3 = require('d3');
 const cloud = require('d3-cloud');
 
 let scaleSize = d3.scaleLog()
-  .range([16, 48])
+  .range([10, 30])
   .domain(wordcloudState.getTotalDomain());
 
 const getSize = (wp=1, hp=1) => {
@@ -17,7 +17,8 @@ const getSize = (wp=1, hp=1) => {
     g = document.documentElement.getElementsByTagName('body')[0],
     width = w.innerWidth || e.clientWidth || g.clientWidth,
     height = w.innerHeight|| e.clientHeight|| g.clientHeight;
-  return {width: wp*width, height: hp*height};
+  let size = {width: wp*width, height: hp*height};
+  return size;
 };
 
 const cloudSize = getSize(1, .15);
