@@ -40,6 +40,7 @@ program
         'node_modules',
         '.idea',
         'build',
+        'dist',
       ];
       const excludeFile = `--exclude-list-file=${__dirname.replace('scripts', 'data')}/clocExclusions.txt`;
       const cmd = `/usr/bin/cloc ${excludeFile} --fullpath --not-match-d='(${excludeBase.join('|')})' --json ./`;
