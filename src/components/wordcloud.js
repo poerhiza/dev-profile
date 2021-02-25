@@ -61,10 +61,10 @@ let getCloud = () => {
           countContainer.innerHTML = '';
         })
         .on('click', (item) => {
-          location.hash = location.hash.replace(/language\/.*/, `language/${btoa(item.text)}`);
+          location.hash = location.hash.replace(/language\/.*/, `language/${btoa(item.target.textContent)}`);
 
           if (location.hash.indexOf('language') === -1) {
-            location.hash = `#!/language/${btoa(item.text)}`;
+            location.hash = `#!/language/${btoa(item.target.textContent)}`;
           }
         });
     });
