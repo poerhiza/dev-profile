@@ -15,7 +15,7 @@ const pkg = require('../../package.json');
 program
   .version(pkg.version, '-v, --version')
   .description('Process directories with cloc and create the ../data/languages.json file')
-  .command('stat [dirs...]', {isDefault: true})
+  .command('stat pathtorepo1 pathtorepo2 pathtorepo3 ...', {isDefault: true})
   .action(function (dirs) {
     let languages = {
       total: {
