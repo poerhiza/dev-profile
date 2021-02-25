@@ -3,9 +3,28 @@ const webpack = require('webpack');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
 const MiniCssExtractPlugin = require('mini-css-extract-plugin');
 const UglifyJsPlugin = require('uglifyjs-webpack-plugin');
+const { BundleAnalyzerPlugin } = require('webpack-bundle-analyzer');
+
+const production = JSON.parse(process.env.NODE_ENV === 'production' || '0');
+
+const plugins = [
+  new MiniCssExtractPlugin(),
+  new HtmlWebpackPlugin({
+    inject: true,
+    hash: false,
+    minify: true,
+    filename: 'index.html',
+    publicPath: '/',
+  }),
+  new webpack.HotModuleReplacementPlugin(),
+];
+
+if (!production) {
+  plugins.push(new BundleAnalyzerPlugin());
+}
 
 module.exports = {
-  mode: 'development',
+  mode: production ? 'production' : 'development',
   devServer: {
     hot: true,
   },
@@ -13,21 +32,21 @@ module.exports = {
   output: {
     path: path.resolve(__dirname, './dist'),
     filename: 'app.js',
-  },
-  optimization: {
-    minimize: true,
-    minimizer: [
-      new UglifyJsPlugin(),
-    ],
-    usedExports: true,
-    sideEffects: true,
+    publicPath: '/',
   },
   module:{
     rules: [
       {
-        test: /\.css$/,
+        test: [/\.css$/],
         use: [
           'style-loader',
+          {
+            loader: MiniCssExtractPlugin.loader,
+            options: {
+              publicPath: '/',
+              esModule: false,
+            },
+          },
           'css-loader',
         ],
       },
@@ -67,8 +86,6 @@ module.exports = {
       },
     ],
   },
-  plugins: [
-    new HtmlWebpackPlugin({title: 'test app'}),
-    new webpack.HotModuleReplacementPlugin(),
-  ],
+  plugins: plugins,
 };
+
